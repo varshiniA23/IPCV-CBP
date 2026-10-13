@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fingerprint Image Enhancement – Forensic Identification Studio</title>
+  <meta name="description" content="Advanced forensic fingerprint image enhancement system using CLAHE, Gabor filters, and morphological processing with PSNR/SSIM quality metrics." />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>" />
+</head>
+<body>
+
+<!-- ─── Header ──────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-brand">
+    <div class="brand-icon">🔍</div>
+    <div>
+      <div class="brand-title">ForensiPrint Studio</div>
+      <div class="brand-subtitle">Image Processing &amp; Computer Vision</div>
+    </div>
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-active">● System Online</span>
+    <span class="badge badge-version">v1.0 · CBP Project</span>
+  </div>
+</header>
+
+<!-- ─── Main ─────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-tag"><span class="dot"></span>Forensic Image Processing System</div>
+    <h1>Fingerprint Image Enhancement<br/>for Forensic Identification</h1>
+    <p class="hero-desc">
+      A forensic-grade digital image processing pipeline that enhances latent and degraded
+      fingerprint images using adaptive histogram equalization, Gabor ridge filters, and
+      morphological analysis — producing ridge maps ready for forensic comparison.
+    </p>
+    <div class="tech-pills">
+      <span class="pill">CLAHE</span>
+      <span class="pill">Gabor Filter Bank</span>
+      <span class="pill">Gaussian Denoise</span>
+      <span class="pill">Median Filter</span>
+      <span class="pill">Unsharp Masking</span>
+      <span class="pill">Morphological Ops</span>
+      <span class="pill">Otsu Binarization</span>
+      <span class="pill">PSNR · SSIM</span>
+    </div>
+  </section>
+
+  <!-- Upload Zone -->
+  <section class="upload-section">
+    <div class="upload-zone" id="drop-zone">
+      <span class="upload-icon">🔎</span>
+      <h3>Drop a Fingerprint Image Here</h3>
+      <p>Upload a latent, rolled, or plain impression fingerprint image</p>
+      <div class="upload-formats">PNG · JPG · BMP · TIF · PGM</div>
+    </div>
+    <div class="action-btns">
+      <!-- Label wraps the hidden input — most reliable cross-browser approach -->
+      <label class="btn-primary" id="btn-upload" style="cursor:pointer; user-select:none;">
+        ⬆ Upload Image
+        <input type="file" id="file-input" accept=".png,.jpg,.jpeg,.bmp,.tif,.tiff,.pgm"
+          style="position:absolute; left:-9999px; opacity:0; width:1px; height:1px;" />
+      </label>
+      <button class="btn-secondary" id="btn-sample" type="button">
+        ⚗ Generate Sample
+      </button>
+    </div>
+  </section>
+
+
+  <!-- Processing bar -->
+  <div class="processing-bar" id="processing-bar">
+    <div class="proc-label" id="proc-label">Running enhancement pipeline…</div>
+    <div class="progress-track"><div class="progress-fill"></div></div>
+  </div>
+
+  <!-- ─── Results ──────────────────────────────────────── -->
+  <section class="results-section" id="results-section">
+
+    <!-- Quality Metrics -->
+    <div class="section-header">
+      <h2>📊 Enhancement Metrics</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="metrics-grid">
+
+      <!-- Quality Score Ring -->
+      <div class="metric-card green">
+        <span class="metric-icon">🏆</span>
+        <div class="quality-ring">
+          <svg width="70" height="70" viewBox="0 0 70 70">
+            <circle class="quality-ring-bg"   cx="35" cy="35" r="30" />
+            <circle class="quality-ring-fill" id="quality-ring-fill" cx="35" cy="35" r="30"
+              stroke-dasharray="188.5" stroke-dashoffset="188.5" />
+          </svg>
+          <div class="quality-ring-text" id="quality-score-text">—</div>
+        </div>
+        <div class="metric-label">Quality Score</div>
+        <div class="metric-sub" id="m-quality-label">—</div>
+      </div>
+
+      <!-- PSNR -->
+      <div class="metric-card cyan">
+        <span class="metric-icon">📡</span>
+        <div class="metric-label">PSNR</div>
+        <div class="metric-value cyan" id="m-psnr">—</div>
+        <div class="metric-sub">Peak Signal-to-Noise Ratio</div>
+      </div>
+
+      <!-- SSIM -->
+      <div class="metric-card blue">
+        <span class="metric-icon">🧠</span>
+        <div class="metric-label">SSIM</div>
+        <div class="metric-value blue" id="m-ssim">—</div>
+        <div class="metric-sub">Structural Similarity</div>
+      </div>
+
+      <!-- CII -->
+      <div class="metric-card purple">
+        <span class="metric-icon">⚡</span>
+        <div class="metric-label">Contrast Improvement</div>
+        <div class="metric-value purple" id="m-cii">—</div>
+        <div class="metric-sub">CII (std ratio)</div>
+      </div>
+
+      <!-- Std Dev -->
+      <div class="metric-card amber">
+        <span class="metric-icon">📈</span>
+        <div class="metric-label">Std Deviation</div>
+        <div class="metric-value amber" style="font-size:1.1rem">
+          <span id="m-std-orig">—</span> → <span id="m-std-enh">—</span>
+        </div>
+        <div class="metric-sub">Original → Enhanced</div>
+      </div>
+
+    </div>
+
+    <!-- Pipeline Stages -->
+    <div class="section-header">
+      <h2>🔬 Processing Pipeline</h2>
+      <div class="section-line"></div>
+    </div>
+    <p style="color:var(--text-muted); font-size:0.82rem; margin-bottom:20px;">
+      Click any stage to view full-size. Each step shows a distinct transformation in the enhancement pipeline.
+    </p>
+    <div class="pipeline-grid" id="pipeline-grid"></div>
+
+    <!-- Before / After Comparison -->
+    <div class="section-header">
+      <h2>⚖️ Before vs After</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="compare-card">
+      <div class="compare-grid">
+        <div class="compare-item">
+          <img id="cmp-original" src="" alt="Original fingerprint" />
+          <div class="compare-label">⬅ Original (Degraded)</div>
+        </div>
+        <div class="compare-item">
+          <img id="cmp-enhanced" src="" alt="Enhanced fingerprint" />
+          <div class="compare-label">Final Enhanced ➡</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extra info -->
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>📋 Brightness Analysis</h4>
+        <div class="info-row"><span>Original Mean</span><span id="d-brightness-orig">—</span></div>
+        <div class="info-row"><span>Enhanced Mean</span><span id="d-brightness-enh">—</span></div>
+      </div>
+      <div class="info-card">
+        <h4>⚙️ Pipeline Stages</h4>
+        <div class="info-row"><span>Step 1</span><span>Gaussian + Median Denoise</span></div>
+        <div class="info-row"><span>Step 2</span><span>CLAHE (clip=3, tile=8×8)</span></div>
+        <div class="info-row"><span>Step 3</span><span>Gabor Filter Bank (8 angles)</span></div>
+        <div class="info-row"><span>Step 4</span><span>Unsharp Masking (σ=2)</span></div>
+        <div class="info-row"><span>Step 5</span><span>Morphological Close + Otsu</span></div>
+      </div>
+      <div class="info-card">
+        <h4>🎯 Metric Reference</h4>
+        <div class="info-row"><span>PSNR ≥ 30 dB</span><span style="color:var(--accent-green)">Good quality</span></div>
+        <div class="info-row"><span>SSIM ≥ 0.85</span><span style="color:var(--accent-green)">High similarity</span></div>
+        <div class="info-row"><span>CII &gt; 1.0</span><span style="color:var(--accent-green)">Contrast improved</span></div>
+      </div>
+    </div>
+
+    <!-- Download bar -->
+    <div class="download-bar">
+      <span style="color:var(--text-secondary); font-size:0.82rem; align-self:center;">⬇ Download Results:</span>
+      <button class="btn-dl btn-dl-enhanced" id="dl-enhanced">✅ Enhanced Image</button>
+      <button class="btn-dl btn-dl-binary"   id="dl-binary">🔲 Binarized Ridge Map</button>
+      <button class="btn-secondary" id="btn-new-analysis" style="padding:10px 20px; font-size:0.8rem;">
+        🔄 New Analysis
+      </button>
+    </div>
+
+  </section><!-- /results -->
+
+</main>
+
+<!-- ─── Footer ───────────────────────────────────────────── -->
+<footer class="footer">
+  ForensiPrint Studio · Fingerprint Image Enhancement for Forensic Identification
+  · CBP – Image Processing &amp; Computer Vision
+</footer>
+
+<!-- ─── Lightbox ─────────────────────────────────────────── -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close">✕</button>
+  <img id="lightbox-img" src="" alt="Full size view" />
+</div>
+
+<!-- ─── Toast ────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
