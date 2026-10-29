@@ -7,6 +7,8 @@ __pycache__/
 *.pptx
 *.ppt
 ~$*
+prepare_ppt_assets.py
+prepare_ppt_assests.py
 
 # Output images & runtime outputs
 output_images/
