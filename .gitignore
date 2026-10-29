@@ -1,0 +1,20 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Presentation files & temporary Office lock files
+*.pptx
+*.ppt
+~$*
+
+# Output images & runtime outputs
+output_images/
+static/uploads/*
+static/results/*
+
+# Environments & IDE settings
+.venv/
+venv/
+.vscode/
+.idea/
