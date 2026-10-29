@@ -9,6 +9,7 @@ __pycache__/
 ~$*
 prepare_ppt_assets.py
 prepare_ppt_assests.py
+build_presentation.py
 
 # Output images & runtime outputs
 output_images/
